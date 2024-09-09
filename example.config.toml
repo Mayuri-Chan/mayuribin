@@ -1,0 +1,11 @@
+[app]
+HOST="0.0.0.0"
+PORT=5556
+# True, if you want to enable rest api
+ENABLE_API=false
+
+[mongodb]
+# Leave this blank if you are using docker-compose
+# Or if you want to use the mongodb atlas, you need to modify file `docker-compose.yml`.
+# Mongodb url from https://cloud.mongodb.com/
+URL="mongodb://127.0.0.1:27017"

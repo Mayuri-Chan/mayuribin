@@ -1,0 +1,48 @@
+            </div>
+            <footer class="unselectable">
+            <div id="copyright">
+            Copyright <i class="far fa-copyright"></i> 2024 -
+            <a class="fas fa-cat" href="static/img/mayuri.jpg" style="text-decoration: none" target="_blank"></a>
+            <a href="https://github.com/wulan17" rel="noopener" target="_blank">wulan17</a>
+            | Base Design by
+            <a href="https://github.com/delivrance" rel="noopener" target="_blank">Dan</a>
+            </div>
+        
+            <div class="links">
+            <div class="link">
+                <i class="fas fa-address-card"></i>
+                <a href="about.md">About</a>
+            </div>
+        
+            <div class="link">
+                <i class="fab fa-telegram-plane"></i>
+                <a href="https://t.me/MayuriChan_Chat" rel="noopener" target="_blank">Contact</a>
+            </div>
+            </div>
+        </footer>
+        <script>
+            a = document.getElementById("raw");
+            a.href = "/raw" + window.location.pathname;
+            hljs.highlightAll();
+            hljs.initLineNumbersOnLoad();
+            let url = document.getElementById("url")
+            if (window.location.pathname !== "/") {
+                url.insertAdjacentText("afterbegin", window.location.pathname)
+                url.classList.remove("hidden")
+                let copyButton = document.querySelector(".fa-copy");
+                if (copyButton) {
+                    copyButton.addEventListener("click", function() {
+                        navigator.clipboard.writeText(window.location.href).then(function() {
+                            url.textContent = "Copied!";
+                            setTimeout(function() {
+                                url.innerHTML = window.location.pathname + " <i class='fas fa-copy'></i>";
+                            }, 1000);
+                        }).catch(function(err) {
+                            console.error('Could not copy URL: ', err);
+                        });
+                    });
+                }
+            }
+        </script>
+    </body>
+</html>

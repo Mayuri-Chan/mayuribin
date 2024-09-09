@@ -1,0 +1,13 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+
+# Configuration files
+config.toml
+
+# Logs
+*.log
+
+# Virtual environment
+*venv*/

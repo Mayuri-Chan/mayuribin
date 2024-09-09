@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Mayuri Bin</title>
+        <link rel="stylesheet" href="/static/css/app.css">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css" rel="stylesheet"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+        <link rel="stylesheet" href="static/css/materia.css" />
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
+    </head>
+    <body>
+        <header class="unselectable">
+            <div class="title">
+            <a href="/" style="color: #8A8A8A; text-decoration: none">
+                    <span>
+                    {<i><span style="color: var(--accent-color)"><b>mayuri</b></span></i>:<i><span
+                    style="color: #A8A8A8">bin</span></i>}
+                    </span>
+            </a>
+            </div>
+
+            <div class="hidden" id="url">
+              <i class="fas fa-copy"></i>
+            </div>
+          
+            <div class="actions">
+              <button class="fas fa-save action" disabled id="save"></button>
+              <a id="raw"><button class="fas fa-code action" id="raw"></button></a>
+              <a href="/"><button class="fas fa-plus action" id="new"></button></a>
+            </div>
+        </header>
+        <div id="content">

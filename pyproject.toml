@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "mayuribin"
+version = "0.1.0"
+description = ""
+authors = ["wulan17 <wulan17@nusantararom.org>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+uvloop = "^0.20.0"
+aiohttp = "^3.10.5"
+async-pymongo = "^0.1.6"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
