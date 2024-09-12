@@ -56,6 +56,7 @@ Response:
     "ok": true,
     "result": {
         "key": "37e0c61285",
+        "url": "https://bin.mayuri.my.id/37e0c61285",
         "title": null,
         "author": null,
         "date": 1725881641.6893768,
