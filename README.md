@@ -18,7 +18,7 @@ sleek and intuitive interface!
 - Rest api.
 - One-click URL copy.
 
-## API
+## mayuri-bin API
 
 ### Using python requests
 #### Get Documents
@@ -48,6 +48,54 @@ data = {
     "content": "Test"
 }
 r = requests.post("https://api.mayuri.my.id/bin", data=data)
+data = r.json()
+```
+Response:
+```json
+{
+    "ok": true,
+    "result": {
+        "key": "37e0c61285",
+        "title": null,
+        "author": null,
+        "date": 1725881641.6893768,
+        "views": 0,
+        "length": 4,
+        "content": "test"
+    }
+}
+```
+
+## self-hosted API
+
+### Using python requests
+#### Get Documents
+```python
+import requests
+
+key = "37e0c61285"
+r = requests.get(f"http://127.0.0.1:5556/api/documents/{key}")
+data = r.json()
+```
+Response:
+```json
+{
+    "ok": true,
+    "result": {
+        "key": "37e0c61285",
+        "content": "test"
+    }
+}
+```
+
+#### Save Documents
+```python
+import requests
+
+data = {
+    "content": "Test"
+}
+r = requests.post("http://127.0.0.1:5556/api/documents", data=data)
 data = r.json()
 ```
 Response:
