@@ -26,7 +26,7 @@ sleek and intuitive interface!
 import requests
 
 key = "37e0c61285"
-r = requests.get(f"https://bin.mayuri.my.id/api/documents/{key}")
+r = requests.get(f"https://api.mayuri.my.id/bin/{key}")
 data = r.json()
 ```
 Response:
@@ -47,7 +47,7 @@ import requests
 data = {
     "content": "Test"
 }
-r = requests.post("https://bin.mayuri.my.id/api/documents", data=data)
+r = requests.post("https://api.mayuri.my.id/bin", data=data)
 data = r.json()
 ```
 Response:
