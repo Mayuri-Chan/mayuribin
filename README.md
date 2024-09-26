@@ -19,53 +19,7 @@ sleek and intuitive interface!
 - One-click URL copy.
 
 ## mayuri-bin API
-
-### Using python requests
-#### Get Documents
-```python
-import requests
-
-key = "37e0c61285"
-r = requests.get(f"https://api.mayuri.my.id/bin/{key}")
-data = r.json()
-```
-Response:
-```json
-{
-    "ok": true,
-    "result": {
-        "key": "37e0c61285",
-        "content": "test"
-    }
-}
-```
-
-#### Save Documents
-```python
-import requests
-
-data = {
-    "content": "Test"
-}
-r = requests.post("https://api.mayuri.my.id/bin", data=data)
-data = r.json()
-```
-Response:
-```json
-{
-    "ok": true,
-    "result": {
-        "key": "37e0c61285",
-        "url": "https://bin.mayuri.my.id/37e0c61285",
-        "title": null,
-        "author": null,
-        "date": 1725881641.6893768,
-        "views": 0,
-        "length": 4,
-        "content": "test"
-    }
-}
-```
+[See here](https://api.mayuri.my.id/v1/docs)
 
 ## self-hosted API
 
