@@ -82,10 +82,12 @@ class MayuriBin(web.Application, Routes):
                 and not re.search(r'^/favicon.ico', request.path)
             ):
                 access_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                remote_ip = request.headers.get('X-Real-IP', request.remote)
+                remote_ip = request.headers.get('cf-connecting-ip', remote_ip)
                 if response.status == 200:
                     self._log.info(
                         '%s "%s %s HTTP/%d.%d" %s [%s]',
-                        request.headers.get('X-Real-IP', request.remote),
+                        remote_ip,
                         request.method,
                         request.path,
                         request.version.major,
@@ -96,7 +98,7 @@ class MayuriBin(web.Application, Routes):
                 else:
                     self._log.warning(
                         '%s "%s %s HTTP/%d.%d" %s [%s]',
-                        request.headers.get('X-Real-IP', request.remote),
+                        remote_ip,
                         request.method,
                         request.path,
                         request.version.major,
