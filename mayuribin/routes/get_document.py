@@ -2,11 +2,69 @@ from aiohttp import web
 from mayuribin.routes import Route
 
 class GetDocument:
-    @Route.get('/api/documents/{key}')
+    @Route.swagger_get('/api/documents')
     async def get_document(self, request):
-        if self.config["app"]["ENABLE_API"] is False:
-            return web.json_response({'ok': False, 'error': 'API is disabled'}, status=403)
-        key = request.match_info["key"]
+        """
+        Optional route description
+        ---
+        summary: Get a document from the bin
+        parameters:
+          - name: key
+            in: query
+            required: true
+            description: The key of the document
+            schema:
+                type: string
+        responses:
+            '200':
+                description: successful operation
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                ok:
+                                    type: boolean
+                                result:
+                                    type: object
+                                    properties:
+                                        key:
+                                            type: string
+                                            example: abcde12345
+                                        content:
+                                            type: string
+                                            example: Hello, World!
+            '400':
+                description: Document Key is required
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                ok:
+                                    type: boolean
+                                    example: false
+                                error:
+                                    type: string
+                                    example: Document Key is required
+            '404':
+                description: Document not found
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                ok:
+                                    type: boolean
+                                    example: false
+                                error:
+                                    type: string
+                                    example: Document not found
+        """
+        try:
+            key = request.rel_url.query['key']
+        except Exception:
+            return web.json_response({'ok': False, 'error': 'Document Key is required'}, status=400)
         document = await self.db.find_one({"key": key})
         if not document and key != "about.md":
             return web.json_response({'ok': False, 'error': 'Document not found'}, status=404)

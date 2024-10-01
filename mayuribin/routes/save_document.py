@@ -5,10 +5,59 @@ from mayuribin.routes import Route
 from time import time
 
 class SaveDocument:
-    @Route.post('/api/documents')
+    @Route.swagger_post('/api/documents')
     async def save_document(self, request):
-        if self.config["app"]["ENABLE_API"] is False:
-            return web.json_response({'ok': False, 'error': 'API is disabled'}, status=403)
+        """
+        Optional route description
+        ---
+        summary: Save a document to the bin
+        requestBody:
+            required: true
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            content:
+                                type: string
+                                description: The content of the document
+        responses:
+            "200":
+                description: successful operation
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                ok:
+                                    type: boolean
+                                result:
+                                    type: object
+                                    properties:
+                                        key:
+                                            type: string
+                                        url:
+                                            type: string
+                                        date:
+                                            type: integer
+                                        length:
+                                            type: integer
+                                        content:
+                                            type: string
+            "400":
+                description: Invalid input
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                ok:
+                                    type: boolean
+                                    example: false
+                                description:
+                                    type: string
+                                    example: Invalid input
+        """
         data = await request.json()
         key = ''.join(str(uuid.uuid4()).split("-"))[:10]
         content = data["content"]

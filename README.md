@@ -29,7 +29,7 @@ sleek and intuitive interface!
 import requests
 
 key = "37e0c61285"
-r = requests.get(f"http://127.0.0.1:5556/api/documents/{key}")
+r = requests.get(f"http://127.0.0.1:5556/api/documents?key={key}")
 data = r.json()
 ```
 Response:

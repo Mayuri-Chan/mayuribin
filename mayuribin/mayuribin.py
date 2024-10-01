@@ -4,10 +4,11 @@ import logging
 import re
 
 from aiohttp import web
+from aiohttp_swagger3 import SwaggerDocs, SwaggerInfo, SwaggerUiSettings
 from async_pymongo import AsyncClient
 from datetime import datetime
 from mayuribin import config
-from mayuribin.route import routes_list
+from mayuribin.route import routes_list, swagger_list
 from mayuribin.routes import Routes
 
 logging.getLogger().handlers.clear()
@@ -21,12 +22,23 @@ class MayuriBin(web.Application, Routes):
         self._conn = AsyncClient(self.config['mongodb']['URL'])
         self.db = self._conn["mayuribin"]["documents"]
         self._log = log
+        self.swagger = SwaggerDocs(
+            self,
+            validate=False,
+            swagger_ui_settings=SwaggerUiSettings(path="/docs/", layout="BaseLayout"),
+            info=SwaggerInfo(
+                title="Mayuri-bin API",
+                version="1.0.0"
+            )
+        )
 
     async def run(self):
         self._setup_log()
         self.middlewares.append(self._access_log_middleware)
         self._log.info("Mayuri-Bin is starting up...")
         self.add_routes(routes_list)
+        if self.config["app"]["ENABLE_API"]:
+            self.swagger.add_routes(swagger_list)
         runner = web.AppRunner(self)
         await runner.setup()
         site = web.TCPSite(runner, host=self.config["app"]["HOST"], port=self.config["app"]["PORT"])
