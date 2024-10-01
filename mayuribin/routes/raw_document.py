@@ -1,6 +1,8 @@
 from aiohttp import web
+from mayuribin.routes import Route
 
 class RawDocument:
+    @Route.get('/raw/{key}')
     async def raw_document(self, request):
         key = request.match_info["key"]
         document = await self.db.find_one({"key": key})

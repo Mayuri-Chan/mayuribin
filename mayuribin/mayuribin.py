@@ -7,6 +7,7 @@ from aiohttp import web
 from async_pymongo import AsyncClient
 from datetime import datetime
 from mayuribin import config
+from mayuribin.route import routes_list
 from mayuribin.routes import Routes
 
 logging.getLogger().handlers.clear()
@@ -25,7 +26,7 @@ class MayuriBin(web.Application, Routes):
         self._setup_log()
         self.middlewares.append(self._access_log_middleware)
         self._log.info("Mayuri-Bin is starting up...")
-        self._setup_routes()
+        self.add_routes(routes_list)
         runner = web.AppRunner(self)
         await runner.setup()
         site = web.TCPSite(runner, host=self.config["app"]["HOST"], port=self.config["app"]["PORT"])
@@ -38,37 +39,6 @@ class MayuriBin(web.Application, Routes):
                 await runner.cleanup()
                 self._log.info("MayuriBin is shutting down...")
                 break
-
-    def _setup_routes(self):
-        self.add_routes(
-            [
-                web.get('/', self.index_page),
-                web.post('/', self.index_page_post),
-                web.get('/favicon.ico', self.favicon),
-                web.get('/static/css/{filename}', self.css),
-                web.get('/static/img/{filename}', self.images),
-                web.get('/raw/{key}', self.raw_document),
-                web.get('/{key}', self.serve_document)
-            ]
-        )
-        if self.config["app"]["ENABLE_API"]:
-            self.add_routes(
-                [
-                    web.get('/api/documents/{key}', self.get_document),
-                    web.post('/api/documents', self.save_document),
-                ]
-            )
-
-    async def favicon(self, request):
-        return web.FileResponse('mayuribin/assets/images/favicon.ico')
-
-    async def css(self, request):
-        filename = request.match_info['filename']
-        return web.FileResponse(f'mayuribin/assets/css/{filename}')
-
-    async def images(self, request):
-        filename = request.match_info['filename']
-        return web.FileResponse(f'mayuribin/assets/images/{filename}')
 
     def _setup_log(self):
         """Configures logging"""

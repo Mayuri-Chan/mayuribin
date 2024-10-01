@@ -1,9 +1,11 @@
 import uuid
 
 from aiohttp import web
+from mayuribin.routes import Route
 from time import time
 
 class IndexPage:
+    @Route.get('/')
     async def index_page(self, request):
         header = """<!DOCTYPE html>
 <html lang="en">

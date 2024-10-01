@@ -1,7 +1,11 @@
 from aiohttp import web
+from mayuribin.routes import Route
 
 class GetDocument:
+    @Route.get('/api/documents/{key}')
     async def get_document(self, request):
+        if self.config["app"]["ENABLE_API"] is False:
+            return web.json_response({'ok': False, 'error': 'API is disabled'}, status=403)
         key = request.match_info["key"]
         document = await self.db.find_one({"key": key})
         if not document and key != "about.md":

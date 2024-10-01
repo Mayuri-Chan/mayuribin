@@ -1,10 +1,14 @@
 import uuid
 
 from aiohttp import web
+from mayuribin.routes import Route
 from time import time
 
 class SaveDocument:
+    @Route.post('/api/documents')
     async def save_document(self, request):
+        if self.config["app"]["ENABLE_API"] is False:
+            return web.json_response({'ok': False, 'error': 'API is disabled'}, status=403)
         data = await request.json()
         key = ''.join(str(uuid.uuid4()).split("-"))[:10]
         content = data["content"]
