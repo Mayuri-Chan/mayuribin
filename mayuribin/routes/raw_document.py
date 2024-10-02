@@ -1,5 +1,5 @@
 from aiohttp import web
-from mayuribin.routes import Route
+from mayuribin.route import Route
 
 class RawDocument:
     @Route.get('/raw/{key}')

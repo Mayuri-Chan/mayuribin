@@ -1,7 +1,7 @@
 import uuid
 
 from aiohttp import web
-from mayuribin.routes import Route
+from mayuribin.route import Route
 from time import time
 
 class SaveDocument:
