@@ -1,4 +1,5 @@
 from aiohttp import web
+from functools import wraps
 
 routes_list = []
 swagger_list = []
@@ -6,6 +7,7 @@ swagger_list = []
 class Route:
     def get(path):
         def decorator(func):
+            @wraps(func)
             def wrapper(request):
                 self = request.app
                 return func(self, request)
@@ -15,6 +17,7 @@ class Route:
 
     def post(path):
         def decorator(func):
+            @wraps(func)
             def wrapper(request):
                 self = request.app
                 return func(self, request)
@@ -24,6 +27,7 @@ class Route:
 
     def swagger_get(path):
         def decorator(func):
+            @wraps(func)
             def wrapper(request):
                 self = request.app
                 return func(self, request)
@@ -33,6 +37,7 @@ class Route:
 
     def swagger_post(path):
         def decorator(func):
+            @wraps(func)
             def wrapper(request):
                 self = request.app
                 return func(self, request)
