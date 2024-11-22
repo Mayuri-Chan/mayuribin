@@ -1,6 +1,6 @@
 <p align="center">
-    <a href="//bin.mayuri.my.id">
-        <img src="https://bin.mayuri.my.id/static/img/mayuribin.png" alt="mayuribin" width="500"/>
+    <a href="//bin.wulan17.top">
+        <img src="https://bin.wulan17.top/static/img/mayuribin.png" alt="mayuribin" width="500"/>
     </a>
 </p>
 
@@ -9,7 +9,7 @@
 > Elegant pastebin service written in Python
 
 **Mayuribin** is an elegant, free and open-source pastebin web application written in Python and publicly
-hosted at [**bin.mayuri.my.id**](//bin.mayuri.my.id). Paste, save and share the link of your text content using a
+hosted at [**bin.mayuri.my.id**](//bin.wulan17.top). Paste, save and share the link of your text content using a
 sleek and intuitive interface!
 
 ## Features
@@ -19,7 +19,7 @@ sleek and intuitive interface!
 - One-click URL copy.
 
 ## mayuri-bin API
-[See here](https://api.mayuri.my.id/v1/docs)
+[See here](https://api.wulan17.top/v1/docs)
 
 ## self-hosted API
 
