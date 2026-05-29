@@ -1,134 +1,86 @@
-import asyncio
-import colorlog
+import asyncpg
 import logging
 import re
 
-from aiohttp import web
-from aiohttp_swagger3 import SwaggerDocs, SwaggerInfo, SwaggerUiSettings
-import asyncpg
+from contextlib import asynccontextmanager
 from datetime import datetime
+from fastapi import FastAPI, Request, Response
 from mayuribin import config
-from mayuribin.route import routes_list, swagger_list
+from mayuribin.route import Route
 from mayuribin.routes import Routes
 
-logging.getLogger().handlers.clear()
-log = logging.getLogger("Mayuri-Bin")
 
-class MayuriBin(web.Application, Routes):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.config = config
-        self.pool = None
-        self._log = log
-        self.swagger = SwaggerDocs(
-            self,
-            validate=False,
-            swagger_ui_settings=SwaggerUiSettings(path="/docs/", layout="BaseLayout"),
-            info=SwaggerInfo(
-                title="Mayuri-bin API",
-                version="1.0.0"
+@asynccontextmanager
+async def prepare_db(app: FastAPI):
+    app.pool = await asyncpg.create_pool(app.config['postgresql']['URL'])
+    async with app.pool.acquire() as conn:
+        await conn.execute('''
+            CREATE TABLE IF NOT EXISTS documents (
+                key VARCHAR(10) PRIMARY KEY,
+                content TEXT,
+                date DOUBLE PRECISION
             )
-        )
+        ''')
+    app.db = app.pool
+    yield
+    await app.pool.close()
 
-    async def run(self):
-        self._setup_log()
-        self.middlewares.append(self._access_log_middleware)
-        self._log.info("Mayuri-Bin is starting up...")
-        self.add_routes(routes_list)
-        if self.config["app"]["ENABLE_API"]:
-            self.swagger.add_routes(swagger_list)
 
-        self.pool = await asyncpg.create_pool(self.config['postgresql']['URL'])
-        async with self.pool.acquire() as conn:
-            await conn.execute('''
-                CREATE TABLE IF NOT EXISTS documents (
-                    key VARCHAR(10) PRIMARY KEY,
-                    content TEXT,
-                    date DOUBLE PRECISION
-                )
-            ''')
-        self.db = self.pool
+class MayuriBin(FastAPI, Route, Routes):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs, lifespan=prepare_db, title="Mayuri-bin API", version="1.0.0")
+        self.config = config
+        self.logger = logging.getLogger("uvicorn.error")
+        self.load_routes()
+        self.middleware("http")(self.access_log_middleware)
 
-        runner = web.AppRunner(self)
-        await runner.setup()
-        site = web.TCPSite(runner, host=self.config["app"]["HOST"], port=self.config["app"]["PORT"])
-        await site.start()
-        self._log.info("Mayuri-Bin is running on %s:%s", self.config["app"]["HOST"], self.config["app"]["PORT"])
-        while True:
-            try:
-                await asyncio.sleep(3600)
-            except asyncio.exceptions.CancelledError:
-                await runner.cleanup()
-                if self.pool:
-                    await self.pool.close()
-                self._log.info("MayuriBin is shutting down...")
-                break
+    def get_remote_ip(self, request: Request) -> str:
+        remote_ip = request.headers.get('X-Real-IP') or (request.client.host if request.client else "127.0.0.1")
+        remote_ip = request.headers.get('cf-connecting-ip', remote_ip)
+        return remote_ip
 
-    def _setup_log(self):
-        """Configures logging"""
-        level = logging.INFO
-        logging.root.setLevel(level)
-
-        file_format = "[ %(asctime)s: %(levelname)-8s ] %(name)-15s - %(message)s"
-        logfile = logging.FileHandler("MayuriBin.log")
-        formatter = logging.Formatter(file_format, datefmt="%H:%M:%S")
-        logfile.setFormatter(formatter)
-        logfile.setLevel(level)
-
-        formatter = colorlog.ColoredFormatter(
-            "  %(log_color)s%(levelname)-8s%(reset)s  |  "
-            "%(name)-15s  |  %(log_color)s%(message)s%(reset)s"
-        )
-        stream = logging.StreamHandler()
-        stream.setLevel(level)
-        stream.setFormatter(formatter)
-
-        root = logging.getLogger()
-        root.setLevel(level)
-        root.addHandler(stream)
-        root.addHandler(logfile)
-
-        # Logging necessary for selected libs
-        logging.getLogger("pymongo").setLevel(logging.WARNING)
-        logging.getLogger("aiohttp").setLevel(logging.WARNING)
-
-    @web.middleware
-    async def _access_log_middleware(self, request, handler):
+    async def access_log_middleware(self, request: Request, call_next):
         try:
-            response = await handler(request)
-            status = response.status
-        except web.HTTPException as ex:
-            response = ex
-            status = ex.status
+            response: Response = await call_next(request)
+            status = response.status_code
+        except Exception as ex:
+            status = getattr(ex, "status_code", 500)
+            raise ex
         finally:
-            if (
-                not re.search(r'^/static/', request.path)
-                and not re.search(r'^/favicon.ico', request.path)
-            ):
+            if not re.search(r'^/static/', request.url.path) and not re.search(r'^/favicon.ico', request.url.path):
                 access_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                remote_ip = request.headers.get('X-Real-IP', request.remote)
-                remote_ip = request.headers.get('cf-connecting-ip', remote_ip)
-                if response.status == 200:
-                    self._log.info(
-                        '%s "%s %s HTTP/%d.%d" %s [%s]',
-                        remote_ip,
-                        request.method,
-                        request.path,
-                        request.version.major,
-                        request.version.minor,
-                        status,
-                        access_time
-                    )
+                remote_ip = self.get_remote_ip(request)
+                http_version = request.scope.get("http_version", "1.1")
+
+                try:
+                    from http import HTTPStatus
+                    status_phrase = HTTPStatus(status).phrase
+                except ValueError:
+                    status_phrase = ""
+
+                if status >= 500:
+                    color = "\033[91m"  # Bright Red
+                elif status >= 400:
+                    color = "\033[31m"  # Red
+                elif status >= 300:
+                    color = "\033[33m"  # Yellow
+                elif status >= 200:
+                    color = "\033[32m"  # Green
                 else:
-                    self._log.warning(
-                        '%s "%s %s HTTP/%d.%d" %s [%s]',
-                        remote_ip,
-                        request.method,
-                        request.path,
-                        request.version.major,
-                        request.version.minor,
-                        status,
-                        access_time
-                    )
+                    color = "\033[37m"  # White
+
+                colored_status = f"{color}{status} {status_phrase}\033[0m".strip()
+
+                query = request.url.query
+                full_path = f"{request.url.path}?{query}" if query else request.url.path
+                log_msg = f'{remote_ip} - "{request.method} {full_path} HTTP/{http_version}" {colored_status} [{access_time}]'
+                log_msg = log_msg.replace("  ", " ")
+
+                if status < 400:
+                    self.logger.info(log_msg)
+                else:
+                    self.logger.warning(log_msg)
+
         return response
+
+mayuribin = MayuriBin()

@@ -1,72 +1,37 @@
 import uuid
-
-from aiohttp import web
-from mayuribin.route import Route
 from time import time
+from typing import Optional
+from fastapi import Request
+from pydantic import BaseModel, Field
+from mayuribin.route import Route
+
+class SaveDocumentRequest(BaseModel):
+    content: str = Field(..., description="The content of the document")
+
+class SaveDocumentResult(BaseModel):
+    key: str
+    title: Optional[str] = None
+    author: Optional[str] = None
+    date: float
+    views: int
+    length: int
+    content: str
+
+class SaveDocumentResponse(BaseModel):
+    ok: bool
+    result: SaveDocumentResult
 
 class SaveDocument:
-    @Route.swagger_post('/api/documents')
-    async def save_document(self, request):
-        """
-        Optional route description
-        ---
-        summary: Save a document to the bin
-        requestBody:
-            required: true
-            content:
-                application/json:
-                    schema:
-                        type: object
-                        properties:
-                            content:
-                                type: string
-                                description: The content of the document
-        responses:
-            "200":
-                description: successful operation
-                content:
-                    application/json:
-                        schema:
-                            type: object
-                            properties:
-                                ok:
-                                    type: boolean
-                                result:
-                                    type: object
-                                    properties:
-                                        key:
-                                            type: string
-                                        url:
-                                            type: string
-                                        date:
-                                            type: integer
-                                        length:
-                                            type: integer
-                                        content:
-                                            type: string
-            "400":
-                description: Invalid input
-                content:
-                    application/json:
-                        schema:
-                            type: object
-                            properties:
-                                ok:
-                                    type: boolean
-                                    example: false
-                                description:
-                                    type: string
-                                    example: Invalid input
-        """
-        data = await request.json()
+    @Route.post('/api/v1/documents', response_model=SaveDocumentResponse, summary="Save a document to the bin")
+    async def save_document(self, body: SaveDocumentRequest):
         key = ''.join(str(uuid.uuid4()).split("-"))[:10]
-        content = data["content"]
+        content = body.content
         now = time()
         _ = await self.db.execute(
             "INSERT INTO documents (key, content, date) VALUES ($1, $2, $3) ON CONFLICT (key) DO UPDATE SET content = EXCLUDED.content, date = EXCLUDED.date",
             key, content, now
         )
-        response = {
+        return {
             'ok': True,
             'result': {
                 'key': key,
@@ -78,4 +43,3 @@ class SaveDocument:
                 'content': content
             }
         }
-        return web.json_response(response)

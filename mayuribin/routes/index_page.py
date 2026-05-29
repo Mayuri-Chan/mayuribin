@@ -1,12 +1,13 @@
 import uuid
 
-from aiohttp import web
+from fastapi import Request
+from fastapi.responses import HTMLResponse, RedirectResponse
 from mayuribin.route import Route
 from time import time
 
 class IndexPage:
-    @Route.get('/')
-    async def index_page(self, request):
+    @Route.get('/', enable_docs=False)
+    async def index_page(self, request: Request):
         header = """<!DOCTYPE html>
 <html lang="en">
     <head>
@@ -83,17 +84,18 @@ class IndexPage:
 </script>
 """
         text = header+content+footer
-        response = web.Response(text=text, content_type="text/html")
+        response = HTMLResponse(content=text)
         response.set_cookie('csrf_token', csrf_token, httponly=True)
         return response
 
-    async def index_page_post(self, request):
-        data = await request.post()
+    @Route.post('/', enable_docs=False)
+    async def index_page_post(self, request: Request):
+        data = await request.form()
         key = ''.join(str(uuid.uuid4()).split("-"))[:10]
-        content = data["content"]
+        content = data.get("content", "")
         now = time()
         _ = await self.db.execute(
             "INSERT INTO documents (key, content, date) VALUES ($1, $2, $3) ON CONFLICT (key) DO UPDATE SET content = EXCLUDED.content, date = EXCLUDED.date",
             key, content, now
         )
-        return web.HTTPFound(f"/{key}")
+        return RedirectResponse(url=f"/{key}", status_code=303)

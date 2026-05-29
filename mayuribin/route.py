@@ -1,46 +1,25 @@
-from aiohttp import web
-from functools import wraps
+from fastapi import Request
 
-routes_list = []
-swagger_list = []
+get_list = []
+post_list = []
 
 class Route:
-    def get(path):
+    def get(path, enable_docs=True, **kwargs):
         def decorator(func):
-            @wraps(func)
-            def wrapper(request):
-                self = request.app
-                return func(self, request)
-            routes_list.append(web.get(path, wrapper))
-            return wrapper
+            get_list.append({"path": path, "func_name": func.__name__, "enable_docs": enable_docs, "kwargs": kwargs})
+            return func
         return decorator
 
-    def post(path):
+    def post(path, enable_docs=True, **kwargs):
         def decorator(func):
-            @wraps(func)
-            def wrapper(request):
-                self = request.app
-                return func(self, request)
-            routes_list.append(web.post(path, wrapper))
-            return wrapper
+            post_list.append({"path": path, "func_name": func.__name__, "enable_docs": enable_docs, "kwargs": kwargs})
+            return func
         return decorator
 
-    def swagger_get(path):
-        def decorator(func):
-            @wraps(func)
-            def wrapper(request):
-                self = request.app
-                return func(self, request)
-            swagger_list.append(web.get(path, wrapper))
-            return wrapper
-        return decorator
-
-    def swagger_post(path):
-        def decorator(func):
-            @wraps(func)
-            def wrapper(request):
-                self = request.app
-                return func(self, request)
-            swagger_list.append(web.post(path, wrapper))
-            return wrapper
-        return decorator
+    def load_routes(self):
+        for route in get_list:
+            endpoint = getattr(self, route["func_name"])
+            self.add_api_route(route["path"], endpoint, methods=["GET"], include_in_schema=route["enable_docs"], **route["kwargs"])
+        for route in post_list:
+            endpoint = getattr(self, route["func_name"])
+            self.add_api_route(route["path"], endpoint, methods=["POST"], include_in_schema=route["enable_docs"], **route["kwargs"])

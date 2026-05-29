@@ -1,13 +1,13 @@
-from aiohttp import web
+from fastapi import Request
+from fastapi.responses import HTMLResponse, RedirectResponse
 from mayuribin.route import Route
 
 class ServeDocument:
-    @Route.get('/{key}')
-    async def serve_document(self, request):
-        key = request.match_info["key"]
+    @Route.get('/{key}', enable_docs=False)
+    async def serve_document(self, request: Request, key: str):
         document = await self.db.fetchrow("SELECT content FROM documents WHERE key = $1", key)
         if not document and key != "about.md":
-            return web.HTTPFound("/")
+            return RedirectResponse(url="/", status_code=303)
         if key == "about.md":
             code = open("mayuribin/assets/about.md", "r").read()
         else:
@@ -19,4 +19,4 @@ class ServeDocument:
 </code></pre>
 """
         text = header+content+footer
-        return web.Response(text=text, content_type="text/html")
+        return HTMLResponse(content=text)
