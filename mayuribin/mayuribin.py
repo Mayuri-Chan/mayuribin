@@ -5,7 +5,7 @@ import re
 
 from aiohttp import web
 from aiohttp_swagger3 import SwaggerDocs, SwaggerInfo, SwaggerUiSettings
-from async_pymongo import AsyncClient
+import asyncpg
 from datetime import datetime
 from mayuribin import config
 from mayuribin.route import routes_list, swagger_list
@@ -19,8 +19,7 @@ class MayuriBin(web.Application, Routes):
         super().__init__(*args, **kwargs)
 
         self.config = config
-        self._conn = AsyncClient(self.config['mongodb']['URL'])
-        self.db = self._conn["mayuribin"]["documents"]
+        self.pool = None
         self._log = log
         self.swagger = SwaggerDocs(
             self,
@@ -39,6 +38,18 @@ class MayuriBin(web.Application, Routes):
         self.add_routes(routes_list)
         if self.config["app"]["ENABLE_API"]:
             self.swagger.add_routes(swagger_list)
+
+        self.pool = await asyncpg.create_pool(self.config['postgresql']['URL'])
+        async with self.pool.acquire() as conn:
+            await conn.execute('''
+                CREATE TABLE IF NOT EXISTS documents (
+                    key VARCHAR(10) PRIMARY KEY,
+                    content TEXT,
+                    date DOUBLE PRECISION
+                )
+            ''')
+        self.db = self.pool
+
         runner = web.AppRunner(self)
         await runner.setup()
         site = web.TCPSite(runner, host=self.config["app"]["HOST"], port=self.config["app"]["PORT"])
@@ -49,6 +60,8 @@ class MayuriBin(web.Application, Routes):
                 await asyncio.sleep(3600)
             except asyncio.exceptions.CancelledError:
                 await runner.cleanup()
+                if self.pool:
+                    await self.pool.close()
                 self._log.info("MayuriBin is shutting down...")
                 break
 

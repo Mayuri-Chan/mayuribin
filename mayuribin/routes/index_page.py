@@ -92,9 +92,8 @@ class IndexPage:
         key = ''.join(str(uuid.uuid4()).split("-"))[:10]
         content = data["content"]
         now = time()
-        _ = await self.db.update_one(
-            {"key": key},
-            {"$set": {"content": content, 'date': now}},
-            upsert=True
+        _ = await self.db.execute(
+            "INSERT INTO documents (key, content, date) VALUES ($1, $2, $3) ON CONFLICT (key) DO UPDATE SET content = EXCLUDED.content, date = EXCLUDED.date",
+            key, content, now
         )
         return web.HTTPFound(f"/{key}")

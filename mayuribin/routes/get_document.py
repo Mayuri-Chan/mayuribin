@@ -65,7 +65,7 @@ class GetDocument:
             key = request.rel_url.query['key']
         except Exception:
             return web.json_response({'ok': False, 'error': 'Document Key is required'}, status=400)
-        document = await self.db.find_one({"key": key})
+        document = await self.db.fetchrow("SELECT content FROM documents WHERE key = $1", key)
         if not document and key != "about.md":
             return web.json_response({'ok': False, 'error': 'Document not found'}, status=404)
         if key == "about.md":

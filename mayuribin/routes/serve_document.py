@@ -5,7 +5,7 @@ class ServeDocument:
     @Route.get('/{key}')
     async def serve_document(self, request):
         key = request.match_info["key"]
-        document = await self.db.find_one({"key": key})
+        document = await self.db.fetchrow("SELECT content FROM documents WHERE key = $1", key)
         if not document and key != "about.md":
             return web.HTTPFound("/")
         if key == "about.md":
