@@ -8,9 +8,8 @@ sleek and intuitive interface!
 
 ## Features
 
-- Choose between Dark and Light themes.
 - Syntax highlighting for source codes based on file extension.
-- Keyboard shortcuts: save <kbd>Ctrl+S</kbd>, new <kbd>Ctrl+N</kbd>, raw <kbd>Shift+Ctrl+R</kbd>.
+- Keyboard shortcuts: save <kbd>Ctrl+S</kbd>, new <kbd>Alt+N</kbd>, raw <kbd>Shift+Ctrl+R</kbd>.
 - Powerful API rate limiter to allow fine-grained control.
 - One-click URL copy.
 

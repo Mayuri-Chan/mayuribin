@@ -16,6 +16,11 @@
             <i class="fab fa-telegram-plane"></i>
             <a href="https://t.me/MayuriChan_Chat" rel="noopener" target="_blank">Contact</a>
         </div>
+
+        <div class="link">
+            <i class="fab fa-github"></i>
+            <a href="https://github.com/Mayuri-Chan/mayuribin" rel="noopener" target="_blank">GitHub</a>
+        </div>
     </div>
 </footer>
 <script>
@@ -39,6 +44,27 @@
             });
         }
     }
+    
+    document.addEventListener("keydown", function(e) {
+        if (e.ctrlKey && !e.shiftKey && (e.key === 's' || e.key === 'S')) {
+            e.preventDefault();
+            let saveBtn = document.getElementById("save") || document.getElementById("save_btn");
+            if (saveBtn && !saveBtn.disabled) {
+                saveBtn.click();
+            }
+        }
+        else if (e.altKey && !e.ctrlKey && !e.shiftKey && (e.key === 'n' || e.key === 'N')) {
+            e.preventDefault();
+            window.location.href = "/";
+        }
+        else if (e.ctrlKey && e.shiftKey && (e.key === 'r' || e.key === 'R')) {
+            e.preventDefault();
+            let rawLink = document.getElementById("raw") || document.getElementById("raw_link");
+            if (rawLink && rawLink.href && !rawLink.disabled) {
+                window.location.href = rawLink.href;
+            }
+        }
+    });
 </script>
 </body>
 
