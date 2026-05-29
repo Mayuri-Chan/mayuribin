@@ -23,10 +23,10 @@ class IndexPage:
     <body>
         <header class="unselectable">
             <div class="title">
-            <a href="/" style="color: #8A8A8A; text-decoration: none">
+            <a href="/">
                     <span>
                     {<i><span style="color: var(--accent-color)"><b>mayuri</b></span></i>:<i><span
-                    style="color: #A8A8A8">bin</span></i>}
+                    class="subtitle">bin</span></i>}
                     </span>
             </a>
             </div>
@@ -34,28 +34,58 @@ class IndexPage:
             <div class="hidden" id="url">
               <i class="fas fa-copy"></i>
             </div>
-          
+
             <div class="actions">
-              <button class="fas fa-save action" id="save"></button>
-              <a id="raw"><button class="fas fa-code action" disabled id="raw"></button></a>
+              <button class="fas fa-save action" id="save_btn" disabled></button>
+              <a id="raw_link"><button class="fas fa-code action" disabled id="raw"></button></a>
               <a href="/"><button class="fas fa-plus action" id="new"></button></a>
             </div>
         </header>
         <div id="content">
 """
         footer = open("mayuribin/assets/footer.html", "r").read()
+        csrf_token = str(uuid.uuid4())
         content = """<form action='/' method="post" id='form'>
-<textarea name='content' placeholder='Paste code, save and share the link!'></textarea>
+<input type='hidden' name='csrf_token' value='""" + csrf_token + """'>
+<textarea name='content' id='content_text' placeholder='Paste code, save and share the link!'></textarea>
+<p id="size-warning" style="color: red; display: none;">The content is too large to be saved (limit is 512KB).</p>
 </form>
 <script>
-    btn = document.getElementById('save');
+    const btn = document.getElementById('save_btn');
+    const textarea = document.getElementById('content_text');
+    const warning = document.getElementById('size-warning');
+    const encoder = new TextEncoder();
+    const maxLength = 524288; // 512KB
+    const toLargeWarningMessage = "The content is too large to be saved (limit is 512KB).";
+    const emptyWarningMessage = "Content cannot be empty.";
+
+    textarea.addEventListener('input', function() {
+        const text = this.value;
+        const byteLength = encoder.encode(text).length;
+        const isEmpty = text.trim() === '';
+        const isTooLarge = byteLength > maxLength;
+
+        btn.disabled = isTooLarge || isEmpty;
+        btn.title = emptyWarningMessage;
+        
+        if (isTooLarge) {
+            btn.title = toLargeWarningMessage;
+        } else if (isEmpty) {
+            btn.title = emptyWarningMessage;
+        } else {
+            btn.title = "Save Document";
+        }
+    });
+
     btn.onclick = function() {
         document.getElementById('form').submit();
     }
 </script>
 """
         text = header+content+footer
-        return web.Response(text=text, content_type="text/html")
+        response = web.Response(text=text, content_type="text/html")
+        response.set_cookie('csrf_token', csrf_token, httponly=True)
+        return response
 
     async def index_page_post(self, request):
         data = await request.post()

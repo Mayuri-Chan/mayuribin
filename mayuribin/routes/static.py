@@ -15,3 +15,8 @@ class Static:
     async def images(self, request):
         filename = request.match_info['filename']
         return web.FileResponse(f'mayuribin/assets/images/{filename}')
+
+    @Route.get('/static/js/{filename}')
+    async def js(self, request):
+        filename = request.match_info['filename']
+        return web.FileResponse(f'mayuribin/assets/js/{filename}')

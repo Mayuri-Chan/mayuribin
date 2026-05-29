@@ -14,6 +14,9 @@ class ServeDocument:
             code = document["content"]
         header = open("mayuribin/assets/header.html", "r").read()
         footer = open("mayuribin/assets/footer.html", "r").read()
-        content = f"<pre><code>{code}</code></pre>"
+        content = f"""
+<pre><code>{code}
+</code></pre>
+"""
         text = header+content+footer
         return web.Response(text=text, content_type="text/html")
