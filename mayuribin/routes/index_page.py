@@ -15,11 +15,7 @@ class IndexPage:
         <title>Mayuri Bin</title>
         <link rel="stylesheet" href="/static/css/app.css">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css" rel="stylesheet"/>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
         <link rel="stylesheet" href="static/css/dracula.css" />
-
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
     </head>
     <body>
         <header class="unselectable">

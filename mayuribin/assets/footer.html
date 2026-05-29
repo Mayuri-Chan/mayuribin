@@ -21,8 +21,6 @@
 <script>
     a = document.getElementById("raw");
     a.href = "/raw" + window.location.pathname;
-    hljs.highlightAll();
-    hljs.initLineNumbersOnLoad();
     let url = document.getElementById("url")
     if (window.location.pathname !== "/") {
         url.insertAdjacentText("afterbegin", window.location.pathname)
