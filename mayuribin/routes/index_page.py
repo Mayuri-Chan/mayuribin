@@ -12,10 +12,11 @@ class IndexPage:
 <html lang="en">
     <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Mayuri Bin</title>
-        <link rel="stylesheet" href="/static/css/app.css">
+        <link rel="stylesheet" href="/static/css/app.css?v=3">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css" rel="stylesheet"/>
-        <link rel="stylesheet" href="static/css/dracula.css" />
+        <link rel="stylesheet" href="/static/css/pygments.css" />
     </head>
     <body>
         <header class="unselectable">
